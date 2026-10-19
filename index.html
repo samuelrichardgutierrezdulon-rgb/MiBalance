@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="Sistema web para el control de ingresos y gastos personales.">
+
+    <title>MiBalance | Control de Gastos Personales</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- MENÚ LATERAL -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <div class="logo-icon">◈</div>
+
+                <div>
+                    <h2>MiBalance</h2>
+                    <span>Finanzas personales</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <button class="nav-item active"
+                        data-section="resumen">
+                    <span>⌂</span>
+                    Resumen
+                </button>
+
+                <button class="nav-item"
+                        data-section="movimientos">
+                    <span>⇄</span>
+                    Movimientos
+                </button>
+
+                <button class="nav-item"
+                        data-section="presupuesto">
+                    <span>◎</span>
+                    Presupuesto
+                </button>
+
+                <button class="nav-item"
+                        data-section="estadisticas">
+                    <span>▥</span>
+                    Estadísticas
+                </button>
+
+            </nav>
+
+            <div class="sidebar-footer">
+
+                <p>Proyecto BTH 2026</p>
+
+                <small>
+                    U.E. Maestro Pitágoras II
+                </small>
+
+            </div>
+
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- ENCABEZADO -->
+            <header class="topbar">
+
+                <div>
+                    <p class="eyebrow">
+                        CONTROL FINANCIERO
+                    </p>
+
+                    <h1 id="pageTitle">
+                        Resumen general
+                    </h1>
+                </div>
+
+                <div class="topbar-actions">
+
+                    <button id="themeToggle"
+                            class="icon-button"
+                            type="button"
+                            aria-label="Cambiar tema">
+                        ☾
+                    </button>
+
+                    <button id="newMovementBtn"
+                            class="primary-button"
+                            type="button">
+                        + Nuevo movimiento
+                    </button>
+
+                </div>
+
+            </header>
+
+            <!-- SECCIÓN RESUMEN -->
+            <section id="resumen"
+                     class="page-section active">
+
+                <div class="welcome-card">
+
+                    <div>
+                        <p class="eyebrow">
+                            TU DINERO, BAJO CONTROL
+                        </p>
+
+                        <h2>
+                            Organiza tus finanzas
+                            de forma sencilla.
+                        </h2>
+
+                        <p>
+                            Registra tus ingresos,
+                            controla tus gastos y
+                            conoce tu saldo disponible.
+                        </p>
+                    </div>
+
+                    <div class="welcome-decoration">
+                        ◈
+                    </div>
+
+                </div>
+
+                <!-- SELECTOR DE MES -->
+                <div class="section-heading">
+
+                    <div>
+                        <h2>Tu resumen financiero</h2>
+
+                        <p>
+                            Consulta tus movimientos
+                            del mes seleccionado.
+                        </p>
+                    </div>
+
+                    <input type="month"
+                           id="monthSelector"
+                           aria-label="Seleccionar mes">
+
+                </div>
+
+                <!-- TARJETAS -->
+                <div class="summary-grid">
+
+                    <article class="summary-card income-card">
+
+                        <div class="card-top">
+                            <span>Ingresos</span>
+                            <span class="card-icon">↗</span>
+                        </div>
+
+                        <h3 id="totalIngresos">
+                            Bs 0.00
+                        </h3>
+
+                        <p>Dinero recibido</p>
+
+                    </article>
+
+                    <article class="summary-card expense-card">
+
+                        <div class="card-top">
+                            <span>Gastos</span>
+                            <span class="card-icon">↘</span>
+                        </div>
+
+                        <h3 id="totalGastos">
+                            Bs 0.00
+                        </h3>
+
+                        <p>Dinero utilizado</p>
+
+                    </article>
+
+                    <article class="summary-card balance-card">
+
+                        <div class="card-top">
+                            <span>Saldo disponible</span>
+                            <span class="card-icon">◈</span>
+                        </div>
+
+                        <h3 id="saldoDisponible">
+                            Bs 0.00
+                        </h3>
+
+                        <p>Ingresos menos gastos del mes</p>
+
+                    </article>
+
+                </div>
+
+                <!-- CONTENIDO DEL RESUMEN -->
+                <div class="dashboard-grid">
+
+                    <article class="panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h3>Gastos por categoría</h3>
+                                <p>Distribución mensual</p>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div id="expenseChart"
+                                 class="donut-chart">
+                            </div>
+
+                            <div id="chartLegend"
+                                 class="chart-legend">
+                            </div>
+                        </div>
+
+                    </article>
+
+                    <article class="panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h3>Presupuesto mensual</h3>
+                                <p>Control de tu límite</p>
+                            </div>
+                        </div>
+
+                        <div class="budget-overview">
+
+                            <p>Presupuesto establecido</p>
+
+                            <h2 id="budgetAmount">
+                                Bs 0.00
+                            </h2>
+
+                            <div class="progress-track">
+                                <div id="budgetProgress"
+                                     class="progress-fill">
+                                </div>
+                            </div>
+
+                            <p id="budgetStatus">
+                                Todavía no has establecido
+                                un presupuesto.
+                            </p>
+
+                            <button class="secondary-button"
+                                    type="button"
+                                    data-section="presupuesto">
+                                Administrar presupuesto
+                            </button>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+                <!-- ÚLTIMOS MOVIMIENTOS -->
+                <article class="panel recent-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Últimos movimientos</h3>
+                            <p>Tu actividad reciente</p>
+                        </div>
+
+                        <button class="text-button"
+                                type="button"
+                                data-section="movimientos">
+                            Ver todos →
+                        </button>
+
+                    </div>
+
+                    <div id="recentMovements"
+                         class="recent-list">
+                    </div>
+
+                </article>
+
+            </section>
+
+            <!-- SECCIÓN MOVIMIENTOS -->
+            <section id="movimientos"
+                     class="page-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <h2>Historial de movimientos</h2>
+
+                        <p>
+                            Consulta, busca y administra
+                            tus ingresos y gastos.
+                        </p>
+                    </div>
+
+                    <button id="exportBtn"
+                            class="secondary-button"
+                            type="button">
+                        ↓ Exportar CSV
+                    </button>
+
+                </div>
+
+                <!-- FILTROS -->
+                <div class="filters">
+
+                    <input type="search"
+                           id="searchInput"
+                           placeholder="Buscar movimiento..."
+                           aria-label="Buscar movimiento">
+
+                    <select id="typeFilter"
+                            aria-label="Filtrar por tipo">
+
+                        <option value="todos">
+                            Todos los tipos
+                        </option>
+
+                        <option value="ingreso">
+                            Ingresos
+                        </option>
+
+                        <option value="gasto">
+                            Gastos
+                        </option>
+
+                    </select>
+
+                    <select id="categoryFilter"
+                            aria-label="Filtrar por categoría">
+
+                        <option value="todas">
+                            Todas las categorías
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- TABLA -->
+                <div class="panel table-panel">
+
+                    <div class="table-responsive">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Categoría</th>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Monto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="movementsTable">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <p id="emptyMovements"
+                       class="empty-state">
+                        Todavía no hay movimientos
+                        para mostrar.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <!-- SECCIÓN PRESUPUESTO -->
+            <section id="presupuesto"
+                     class="page-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <h2>Presupuesto mensual</h2>
+
+                        <p>
+                            Establece cuánto dinero
+                            deseas gastar durante el mes.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="budget-layout">
+
+                    <article class="panel">
+
+                        <h3>Configurar presupuesto</h3>
+
+                        <p class="panel-description">
+                            Ingresa el límite máximo
+                            que deseas gastar.
+                        </p>
+
+                        <form id="budgetForm">
+
+                            <label for="budgetInput">
+                                Presupuesto en bolivianos
+                            </label>
+
+                            <input type="number"
+                                   id="budgetInput"
+                                   min="0"
+                                   step="0.01"
+                                   placeholder="Ejemplo: 500"
+                                   required>
+
+                            <button type="submit"
+                                    class="primary-button">
+                                Guardar presupuesto
+                            </button>
+
+                        </form>
+
+                    </article>
+
+                    <article class="panel">
+
+                        <h3>Estado del presupuesto</h3>
+
+                        <div class="budget-details">
+
+                            <div>
+                                <span>Límite mensual</span>
+                                <strong id="budgetLimitDetail">
+                                    Bs 0.00
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Total gastado</span>
+                                <strong id="budgetSpentDetail">
+                                    Bs 0.00
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Dinero restante</span>
+                                <strong id="budgetRemainingDetail">
+                                    Bs 0.00
+                                </strong>
+                            </div>
+
+                        </div>
+
+                        <div class="progress-track">
+                            <div id="budgetDetailProgress"
+                                 class="progress-fill">
+                            </div>
+                        </div>
+
+                        <p id="budgetMessage">
+                            Establece tu presupuesto
+                            para comenzar.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+            <!-- SECCIÓN ESTADÍSTICAS -->
+            <section id="estadisticas"
+                     class="page-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <h2>Estadísticas financieras</h2>
+
+                        <p>
+                            Analiza cómo utilizas
+                            tu dinero durante el mes.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="stats-grid">
+
+                    <article class="panel">
+
+                        <h3>Ingresos y gastos</h3>
+
+                        <div id="comparisonChart"
+                             class="comparison-chart">
+                        </div>
+
+                    </article>
+
+                    <article class="panel">
+
+                        <h3>Distribución de gastos</h3>
+
+                        <div id="categoryStats"
+                             class="category-stats">
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- MODAL DE MOVIMIENTOS -->
+    <div id="movementModal"
+         class="modal-overlay"
+         aria-hidden="true">
+
+        <div class="modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="modalTitle">
+
+            <div class="modal-header">
+
+                <h2 id="modalTitle">
+                    Nuevo movimiento
+                </h2>
+
+                <button id="closeModalBtn"
+                        class="close-button"
+                        type="button"
+                        aria-label="Cerrar">
+                    ×
+                </button>
+
+            </div>
+
+            <form id="movementForm">
+
+                <input type="hidden"
+                       id="movementId">
+
+                <div class="form-group">
+
+                    <label for="movementDescription">
+                        Descripción
+                    </label>
+
+                    <input type="text"
+                           id="movementDescription"
+                           placeholder="Ejemplo: Almuerzo"
+                           maxlength="80"
+                           required>
+
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="movementAmount">
+                            Monto (Bs)
+                        </label>
+
+                        <input type="number"
+                               id="movementAmount"
+                               min="0.01"
+                               step="0.01"
+                               placeholder="0.00"
+                               required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="movementType">
+                            Tipo
+                        </label>
+
+                        <select id="movementType" required>
+
+                            <option value="gasto">
+                                Gasto
+                            </option>
+
+                            <option value="ingreso">
+                                Ingreso
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="movementCategory">
+                            Categoría
+                        </label>
+
+                        <select id="movementCategory"
+                                required>
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="movementDate">
+                            Fecha
+                        </label>
+
+                        <input type="date"
+                               id="movementDate"
+                               required>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-actions">
+
+                    <button id="cancelModalBtn"
+                            class="secondary-button"
+                            type="button">
+                        Cancelar
+                    </button>
+
+                    <button class="primary-button"
+                            type="submit">
+                        Guardar movimiento
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- NOTIFICACIONES -->
+    <div id="toast"
+         class="toast"
+         role="status"
+         aria-live="polite">
+    </div>
+
+    <!-- NAVEGACIÓN PARA CELULARES -->
+    <nav class="mobile-nav"
+         aria-label="Navegación móvil">
+
+        <button class="mobile-nav-item active"
+                data-section="resumen">
+            <span>⌂</span>
+            <small>Resumen</small>
+        </button>
+
+        <button class="mobile-nav-item"
+                data-section="movimientos">
+            <span>⇄</span>
+            <small>Movimientos</small>
+        </button>
+
+        <button class="mobile-nav-item"
+                data-section="presupuesto">
+            <span>◎</span>
+            <small>Presupuesto</small>
+        </button>
+
+        <button class="mobile-nav-item"
+                data-section="estadisticas">
+            <span>▥</span>
+            <small>Estadísticas</small>
+        </button>
+
+    </nav>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
