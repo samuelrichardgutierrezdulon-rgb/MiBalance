@@ -1108,3 +1108,52 @@ td strong {
         right: 15px;
     }
 }
+/* RESPALDOS Y TARJETAS DEL HISTORIAL MÓVIL */
+.backup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.backup-actions p {
+    flex-basis: 100%;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+@media (max-width: 550px) {
+    #movimientos table,
+    #movimientos tbody {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+    #movimientos thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+    #movimientos tbody tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 14px;
+        padding: 12px;
+    }
+    #movimientos tbody td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+        border: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    #movimientos tbody td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+}
