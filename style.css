@@ -1157,3 +1157,49 @@ td strong {
         flex-shrink: 0;
     }
 }
+
+/* AVISOS DEL PRESUPUESTO Y DISTRIBUCIÓN POR CATEGORÍA */
+#budgetStatus, #budgetMessage {
+    border-left: 4px solid var(--income);
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--income-soft);
+    color: var(--text);
+}
+[data-estado="aviso"] {
+    border-left-color: #b87a2e !important;
+    background: var(--primary-soft) !important;
+}
+[data-estado="excedido"] {
+    border-left-color: var(--expense) !important;
+    background: var(--expense-soft) !important;
+}
+[data-estado="sin-limite"] {
+    border-left-color: var(--border) !important;
+    background: var(--surface-alt) !important;
+}
+#deleteBudgetBtn {
+    margin-top: 12px;
+    width: 100%;
+    color: var(--expense);
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+.category-bar-track {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--border);
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+.category-bar-track > div {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.3s ease;
+}
+.category-stat-item {
+    gap: 12px;
+    flex-wrap: wrap;
+}
