@@ -732,10 +732,24 @@ function guardarPresupuesto(evento) {
     mostrarToast("Presupuesto mensual guardado correctamente.");
 }
 
+function eliminarPresupuesto() {
+    if (!obtenerPresupuesto()) return;
+    if (!confirm("¿Eliminar el presupuesto del mes seleccionado?")) return;
+
+    const nuevosPresupuestos = { ...presupuestos };
+    delete nuevosPresupuestos[mesSeleccionado];
+    if (!guardarDatos(STORAGE.presupuestos, nuevosPresupuestos)) return;
+
+    presupuestos = nuevosPresupuestos;
+    actualizarPresupuesto();
+    mostrarToast("Presupuesto eliminado.");
+}
+
 function actualizarPresupuesto() {
     const presupuesto = obtenerPresupuesto();
     const { gastos } = calcularTotales(movimientosDelMes());
 
+    $("deleteBudgetBtn").disabled = presupuesto === 0;
     const restante = presupuesto - gastos;
 
     const porcentaje =
@@ -792,6 +806,8 @@ function actualizarPresupuesto() {
     } else if (gastos === presupuesto) {
         mensaje =
             "Has utilizado todo tu presupuesto mensual.";
+    } else if (porcentaje >= 80) {
+        mensaje = `Atención: te acercas al límite. Te quedan ${formatearDinero(restante)}.`;
     } else {
         mensaje =
             `Te quedan ${formatearDinero(restante)} disponibles.`;
@@ -801,6 +817,12 @@ function actualizarPresupuesto() {
         mensaje += ` Has usado ${porcentaje.toFixed(1)}% de ${formatearDinero(presupuesto)}.`;
     }
 
+    const estado = presupuesto === 0 ? "sin-limite" :
+        porcentaje >= 100 ? "excedido" : porcentaje >= 80 ? "aviso" : "normal";
+    elementos.budgetStatus.dataset.estado = estado;
+    elementos.budgetMessage.dataset.estado = estado;
+    elementos.budgetStatus.setAttribute("aria-live", "polite");
+    elementos.budgetMessage.setAttribute("aria-live", "polite");
     elementos.budgetStatus.textContent = mensaje;
     elementos.budgetMessage.textContent = mensaje;
 
@@ -940,8 +962,11 @@ function actualizarEstadisticas() {
                     </span>
 
                     <strong>
-                        ${formatearDinero(monto)}
+                        ${formatearDinero(monto)} · ${(monto / gastos * 100).toFixed(1)}%
                     </strong>
+                </div>
+                <div class="category-bar-track" aria-hidden="true">
+                    <div style="width:${monto / gastos * 100}%;background:${color}"></div>
                 </div>
             `;
         }).join("");
@@ -1253,6 +1278,7 @@ function configurarEventos() {
         exportarCSV
     );
 
+    $("deleteBudgetBtn").addEventListener("click", eliminarPresupuesto);
     $("backupBtn").addEventListener("click", exportarRespaldo);
     $("restoreBtn").addEventListener("click", () => $("backupFile").click());
     $("backupFile").addEventListener("change", restaurarRespaldo);

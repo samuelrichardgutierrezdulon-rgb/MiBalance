@@ -323,7 +323,7 @@
                     <button id="backupBtn" class="secondary-button" type="button">Descargar respaldo</button>
                     <button id="restoreBtn" class="secondary-button" type="button">Restaurar respaldo</button>
                     <input id="backupFile" type="file" accept=".json,application/json" hidden>
-                    <p>El respaldo incluye todos tus movimientos y presupuestos de todos los meses.</p>
+                    <p>El respaldo es un archivo JSON con tus movimientos y presupuestos de todos los meses. Guárdalo y selecciónalo en Restaurar respaldo para recuperar tus datos.</p>
                 </div>
 
                 <!-- FILTROS -->
@@ -442,6 +442,10 @@
                                     class="primary-button">
                                 Guardar presupuesto
                             </button>
+                            <button id="deleteBudgetBtn" type="button" class="secondary-button">
+                                Eliminar presupuesto
+                            </button>
+                            <p class="panel-description">Para quitar el límite del mes, pulsa Eliminar presupuesto.</p>
 
                         </form>
 
