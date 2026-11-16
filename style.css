@@ -120,14 +120,8 @@ p {
 }
 
 .logo-icon {
-    width: 45px;
-    height: 45px;
-    display: grid;
-    place-items: center;
-    border-radius: 14px;
-    background: var(--primary);
-    color: #fff;
-    font-size: 28px;
+    display: block;
+    flex-shrink: 0;
 }
 
 .logo h2 {
@@ -223,6 +217,10 @@ p {
     letter-spacing: -1px;
 }
 
+.mobile-brand {
+    display: none;
+}
+
 .topbar-actions {
     display: flex;
     align-items: center;
@@ -235,6 +233,7 @@ p {
 .secondary-button,
 .icon-button,
 .text-button {
+    min-height: 44px;
     border-radius: 11px;
     transition: 0.2s;
 }
@@ -243,9 +242,10 @@ p {
     border: 1px solid var(--primary);
     background: var(--primary);
     color: #fff;
-    padding: 12px 18px;
+    min-height: 48px;
+    padding: 12px 20px;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 15px;
 }
 
 .primary-button:hover {
@@ -258,9 +258,9 @@ p {
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
-    padding: 11px 16px;
+    padding: 10px 16px;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .secondary-button:hover {
@@ -269,8 +269,8 @@ p {
 }
 
 .icon-button {
-    width: 43px;
-    height: 43px;
+    width: 44px;
+    flex-shrink: 0;
     display: grid;
     place-items: center;
     border: 1px solid var(--border);
@@ -768,8 +768,10 @@ td strong {
     background: var(--surface);
     color: var(--text);
     border-radius: 8px;
-    padding: 7px 9px;
-    font-size: 11px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 13px;
 }
 
 .action-button:hover {
@@ -893,8 +895,9 @@ td strong {
     border: 0;
     background: var(--surface-alt);
     color: var(--text);
-    width: 35px;
-    height: 35px;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
     border-radius: 9px;
     font-size: 25px;
 }
@@ -978,6 +981,19 @@ td strong {
         padding: 25px 18px 105px;
     }
 
+    .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .topbar .eyebrow {
+        display: none;
+    }
+
     .mobile-nav {
         display: flex;
         justify-content: space-around;
@@ -999,8 +1015,9 @@ td strong {
         border: 0;
         background: transparent;
         color: var(--text-muted);
+        min-height: 48px;
         font-size: 22px;
-        padding: 5px 10px;
+        padding: 5px 6px;
     }
 
     .mobile-nav-item small {
@@ -1032,7 +1049,14 @@ td strong {
 
     .topbar-actions {
         width: 100%;
-        justify-content: space-between;
+    }
+
+    .topbar-actions .primary-button {
+        flex: 1;
+    }
+
+    .modal-actions {
+        flex-wrap: wrap;
     }
 
     .welcome-card {
@@ -1082,5 +1106,54 @@ td strong {
         bottom: 90px;
         left: 15px;
         right: 15px;
+    }
+}
+/* RESPALDOS Y TARJETAS DEL HISTORIAL MÓVIL */
+.backup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.backup-actions p {
+    flex-basis: 100%;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+@media (max-width: 550px) {
+    #movimientos table,
+    #movimientos tbody {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+    #movimientos thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+    #movimientos tbody tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 14px;
+        padding: 12px;
+    }
+    #movimientos tbody td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+        border: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    #movimientos tbody td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: 12px;
+        flex-shrink: 0;
     }
 }

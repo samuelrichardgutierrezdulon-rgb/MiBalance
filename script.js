@@ -53,6 +53,11 @@ const TITULOS = {
 
 function cargarDatos(clave, inicial) {
     try {
+        // El documento único permite restaurar todos los datos en una escritura.
+        const conjunto = localStorage.getItem("mibalance_datos_v2");
+        if (conjunto && clave !== STORAGE.tema) {
+            return JSON.parse(conjunto)[clave] ?? inicial;
+        }
         const dato = localStorage.getItem(clave);
         return dato === null ? inicial : JSON.parse(dato);
     } catch (error) {
@@ -63,7 +68,16 @@ function cargarDatos(clave, inicial) {
 
 function guardarDatos(clave, datos) {
     try {
-        localStorage.setItem(clave, JSON.stringify(datos));
+        if (clave === STORAGE.tema) {
+            localStorage.setItem(clave, JSON.stringify(datos));
+        } else {
+            const conjunto = {
+                [STORAGE.movimientos]: cargarDatos(STORAGE.movimientos, []),
+                [STORAGE.presupuestos]: cargarDatos(STORAGE.presupuestos, {})
+            };
+            conjunto[clave] = datos;
+            localStorage.setItem("mibalance_datos_v2", JSON.stringify(conjunto));
+        }
         return true;
     } catch (error) {
         console.error("Error al guardar:", error);
@@ -625,34 +639,34 @@ function actualizarTabla() {
 
         return `
             <tr>
-                <td>
+                <td data-label="Descripción">
                     <strong>
                         ${escaparHTML(movimiento.descripcion)}
                     </strong>
                 </td>
 
-                <td>
+                <td data-label="Categoría">
                     ${escaparHTML(movimiento.categoria)}
                 </td>
 
-                <td>
+                <td data-label="Fecha">
                     ${formatearFecha(movimiento.fecha)}
                 </td>
 
-                <td>
+                <td data-label="Tipo">
                     <span class="type-badge ${movimiento.tipo}">
                         ${esIngreso ? "Ingreso" : "Gasto"}
                     </span>
                 </td>
 
-                <td class="${
+                <td data-label="Monto" class="${
                     esIngreso ? "amount-income" : "amount-expense"
                 }">
                     ${esIngreso ? "+" : "-"}
                     ${formatearDinero(movimiento.monto)}
                 </td>
 
-                <td>
+                <td data-label="Acciones">
                     <div class="table-actions">
                         <button
                             type="button"
@@ -781,6 +795,10 @@ function actualizarPresupuesto() {
     } else {
         mensaje =
             `Te quedan ${formatearDinero(restante)} disponibles.`;
+    }
+
+    if (presupuesto > 0) {
+        mensaje += ` Has usado ${porcentaje.toFixed(1)}% de ${formatearDinero(presupuesto)}.`;
     }
 
     elementos.budgetStatus.textContent = mensaje;
@@ -992,6 +1010,90 @@ function exportarCSV() {
     mostrarToast("Archivo CSV exportado correctamente.");
 }
 
+
+/* RESPALDOS: EXPORTAR, VALIDAR Y RESTAURAR */
+
+function exportarRespaldo() {
+    const respaldo = {
+        sistema: "MiBalance",
+        version: 1,
+        creado: new Date().toISOString(),
+        movimientos,
+        presupuestos
+    };
+    const archivo = new Blob([JSON.stringify(respaldo, null, 2)], {
+        type: "application/json"
+    });
+    const url = URL.createObjectURL(archivo);
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = `MiBalance-respaldo-${obtenerFechaActual()}.json`;
+    enlace.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    mostrarToast("Respaldo descargado.");
+}
+
+function validarRespaldo(datos) {
+    if (!datos || datos.sistema !== "MiBalance" || datos.version !== 1 ||
+        !Array.isArray(datos.movimientos) || !datos.presupuestos ||
+        typeof datos.presupuestos !== "object" || Array.isArray(datos.presupuestos)) {
+        throw new Error("El archivo no es un respaldo válido de MiBalance.");
+    }
+
+    const ids = new Set();
+    for (const item of datos.movimientos) {
+        if (!item || !["string", "number"].includes(typeof item.id) ||
+            !String(item.id).trim() || ids.has(String(item.id)) ||
+            typeof item.descripcion !== "string" || !item.descripcion.trim() ||
+            typeof item.categoria !== "string" || !item.categoria.trim() ||
+            !["ingreso", "gasto"].includes(item.tipo) ||
+            !Number.isFinite(item.monto) || item.monto <= 0 ||
+            typeof item.fecha !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(item.fecha) ||
+            !Number.isFinite(Date.parse(item.fecha)) ||
+            new Date(item.fecha).toISOString().slice(0, 10) !== item.fecha) {
+            throw new Error("El respaldo contiene movimientos inválidos o repetidos.");
+        }
+        ids.add(String(item.id));
+    }
+
+    for (const [mes, monto] of Object.entries(datos.presupuestos)) {
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mes) ||
+            !Number.isFinite(monto) || monto < 0) {
+            throw new Error("El respaldo contiene presupuestos inválidos.");
+        }
+    }
+    return datos;
+}
+
+async function restaurarRespaldo(evento) {
+    const archivo = evento.target.files[0];
+    if (!archivo) return;
+
+    try {
+        const datos = validarRespaldo(JSON.parse(await archivo.text()));
+        const aceptar = confirm(
+            `Restaurar ${datos.movimientos.length} movimientos y ${Object.keys(datos.presupuestos).length} presupuestos. ` +
+            "Esto reemplazará tus datos actuales. Descarga primero un respaldo si quieres conservarlos."
+        );
+        if (!aceptar) return;
+
+        // Una sola escritura: si falla, los datos anteriores siguen disponibles.
+        localStorage.setItem("mibalance_datos_v2", JSON.stringify({
+            [STORAGE.movimientos]: datos.movimientos,
+            [STORAGE.presupuestos]: datos.presupuestos
+        }));
+        movimientos = datos.movimientos;
+        presupuestos = datos.presupuestos;
+        actualizarTodo();
+        mostrarToast("Respaldo restaurado correctamente.");
+    } catch (error) {
+        console.error("Error al restaurar:", error);
+        mostrarToast("No se pudo restaurar. Revisa el archivo y el espacio del navegador.");
+    } finally {
+        evento.target.value = "";
+    }
+}
+
 /* 15. MODO OSCURO */
 
 function iniciarTema() {
@@ -1150,6 +1252,10 @@ function configurarEventos() {
         "click",
         exportarCSV
     );
+
+    $("backupBtn").addEventListener("click", exportarRespaldo);
+    $("restoreBtn").addEventListener("click", () => $("backupFile").click());
+    $("backupFile").addEventListener("change", restaurarRespaldo);
 
     elementos.themeToggle.addEventListener(
         "click",
