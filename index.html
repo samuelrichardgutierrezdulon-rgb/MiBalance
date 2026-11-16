@@ -10,7 +10,7 @@
     <title>MiBalance | Control de Gastos Personales</title>
 
     <link rel="icon" href="logo.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20261116-estadisticas">
 </head>
 
 <body>
@@ -109,9 +109,12 @@
 
             </header>
 
-            <div class="section-heading">
-                <label for="monthSelector">Mes de consulta</label>
-                <input type="month" id="monthSelector" aria-label="Seleccionar mes de consulta">
+            <div class="month-filter">
+                <div>
+                    <label for="monthSelector">Mes de consulta</label>
+                    <time id="selectedMonth" aria-live="polite"></time>
+                </div>
+                <input type="month" id="monthSelector">
             </div>
 
             <!-- SECCIÓN RESUMEN -->
@@ -143,7 +146,6 @@
 
                 </div>
 
-                <!-- SELECTOR DE MES -->
                 <div class="section-heading">
 
                     <div>
@@ -154,8 +156,6 @@
                             del mes seleccionado.
                         </p>
                     </div>
-
-
 
                 </div>
 
@@ -504,19 +504,6 @@
             <section id="estadisticas"
                      class="page-section">
 
-                <div class="section-heading">
-
-                    <div>
-                        <h2>Estadísticas financieras</h2>
-
-                        <p>
-                            Analiza cómo utilizas
-                            tu dinero durante el mes.
-                        </p>
-                    </div>
-
-                </div>
-
                 <div class="stats-grid">
 
                     <article class="panel">
@@ -526,6 +513,8 @@
                         <div id="comparisonChart"
                              class="comparison-chart">
                         </div>
+
+                        <p id="comparisonSummary" class="comparison-summary" aria-live="polite"></p>
 
                     </article>
 
@@ -716,7 +705,7 @@
 
     </nav>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20261116-estadisticas"></script>
 
 </body>
 </html>

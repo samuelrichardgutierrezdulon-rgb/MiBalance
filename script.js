@@ -49,6 +49,12 @@ const TITULOS = {
     estadisticas: "Estadísticas financieras"
 };
 
+const FORMATO_MES = new Intl.DateTimeFormat("es-BO", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC"
+});
+
 /* 2. ESTADO */
 
 function cargarDatos(clave, inicial) {
@@ -119,6 +125,7 @@ const $ = (id) => document.getElementById(id);
 const elementos = {
     pageTitle: $("pageTitle"),
     monthSelector: $("monthSelector"),
+    selectedMonth: $("selectedMonth"),
     totalIngresos: $("totalIngresos"),
     totalGastos: $("totalGastos"),
     saldoDisponible: $("saldoDisponible"),
@@ -131,6 +138,7 @@ const elementos = {
     expenseChart: $("expenseChart"),
     chartLegend: $("chartLegend"),
     comparisonChart: $("comparisonChart"),
+    comparisonSummary: $("comparisonSummary"),
     categoryStats: $("categoryStats"),
     budgetAmount: $("budgetAmount"),
     budgetProgress: $("budgetProgress"),
@@ -481,7 +489,6 @@ function guardarMovimiento(evento) {
 
     movimientos = nuevosMovimientos;
     mesSeleccionado = fecha.slice(0, 7);
-    elementos.monthSelector.value = mesSeleccionado;
 
     cerrarModal();
     actualizarTodo();
@@ -893,9 +900,41 @@ function actualizarGraficoGastos() {
 
 /* 13. ESTADÍSTICAS */
 
+function describirIngresosYGastos({ ingresos, gastos, saldo }) {
+    if (ingresos === 0 && gastos === 0) {
+        return "Todavía no hay ingresos ni gastos registrados para este mes.";
+    }
+
+    if (ingresos === 0) {
+        return `Registraste ${formatearDinero(gastos)} en gastos y aún no hay ingresos registrados.`;
+    }
+
+    if (gastos === 0) {
+        return `Registraste ${formatearDinero(ingresos)} en ingresos y aún no hay gastos registrados.`;
+    }
+
+    const diferencia = Math.round(saldo * 100) / 100;
+
+    if (diferencia === 0) {
+        return "Los ingresos y los gastos del mes son iguales. El saldo es de Bs 0,00.";
+    }
+
+    const monto = formatearDinero(Math.abs(diferencia));
+    const comparacion = diferencia > 0
+        ? `Tus ingresos superan tus gastos por ${monto}.`
+        : `Tus gastos superan tus ingresos por ${monto}.`;
+    const porcentaje = (gastos / ingresos * 100).toLocaleString("es-BO", {
+        maximumFractionDigits: 1
+    });
+
+    return `${comparacion} Tus gastos representan el ${porcentaje} % de tus ingresos.`;
+}
+
 function actualizarEstadisticas() {
     const lista = movimientosDelMes();
-    const { ingresos, gastos } = calcularTotales(lista);
+    const totales = calcularTotales(lista);
+    const { ingresos, gastos } = totales;
+    elementos.comparisonSummary.textContent = describirIngresosYGastos(totales);
     const maximo = Math.max(ingresos, gastos, 1);
 
     const porcentajeIngresos = ingresos / maximo * 100;
@@ -1158,7 +1197,15 @@ function cambiarTema() {
 }
 /* 16. ACTUALIZACIÓN GENERAL */
 
+function actualizarMesConsulta() {
+    const fecha = new Date(`${mesSeleccionado}-01T00:00:00Z`);
+    elementos.monthSelector.value = mesSeleccionado;
+    elementos.selectedMonth.dateTime = mesSeleccionado;
+    elementos.selectedMonth.textContent = FORMATO_MES.format(fecha);
+}
+
 function actualizarTodo() {
+    actualizarMesConsulta();
     actualizarFiltroCategorias();
     actualizarResumen();
     actualizarRecientes();
@@ -1244,11 +1291,14 @@ function configurarEventos() {
     elementos.monthSelector.addEventListener(
         "change",
         () => {
-            if (!elementos.monthSelector.value) {
+            const mes = elementos.monthSelector.value;
+
+            if (!/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {
+                elementos.monthSelector.value = mesSeleccionado;
                 return;
             }
 
-            mesSeleccionado = elementos.monthSelector.value;
+            mesSeleccionado = mes;
             actualizarTodo();
         }
     );
@@ -1291,8 +1341,6 @@ function configurarEventos() {
 /* 18. INICIAR APLICACIÓN */
 
 function iniciarAplicacion() {
-    elementos.monthSelector.value = mesSeleccionado;
-
     actualizarCategoriasFormulario();
     iniciarTema();
     configurarEventos();
